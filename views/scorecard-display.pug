@@ -13,7 +13,10 @@ html
       .row(style="padding-top:20px;padding-bottom:20px")
         .col-sm-12(align="center")
           h1
-            span(id="score") #{data.totalScore} / #{data.wickets}
+            - var scoreText = data.totalScore + " / " + data.wickets + " ( " + data.oversComplete + " )"
+            span(id="score") #{scoreText}
+        .col-sm-12(align="center")
+            span(id="score_desc") 
 
       .row(style="padding-top:40px;")
 
@@ -59,7 +62,18 @@ html
 
 
   script(src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js')
+  script(src='/socket.io/socket.io.js')
   script.
+    var socket = io();
+    $(function () {
+      var socket = io();
+      socket.on('update score', function(msg){
+        var scoreText = msg.totalScore + " / " + msg.wickets + " ( " + msg.oversComplete + " )"
+        $("#score").text(scoreText)
+        $("#score_desc").text("\"Score Updated..Refresh page to see updated details section (Beta glitch)\"")
+      });
+    });
+
     var ballInProgress=["WIDE","NOBALL"]
       var validBalls=["0","1","2","3","4","5","6"]
       var lastSelected="0.0"
@@ -72,6 +86,7 @@ html
       function calculateScore(){
         var totalScore=0
         var wickets=0
+        var oversComplete="0.0"
         $('[id^="over_"]').each(function(index){
           var over = $(this).text()
           var overTotal=0
@@ -82,6 +97,12 @@ html
               bScore=0
               inCompleteOver=true
             }else{
+              if(i>=6){
+                oversComplete=over
+              }else{
+                oversComplete=parseInt(over)-1+"."+i
+              }
+              
               bScore=parseInt(bScore)
             }
             overTotal = overTotal+bScore
@@ -103,6 +124,7 @@ html
           }
           
         })
-        $("#score").text(totalScore + "/" + wickets)
+        var scoreText = totalScore + " / " + wickets + " ( " + oversComplete + " )"
+        $("#score").text(scoreText)
       }
 

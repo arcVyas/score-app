@@ -93,13 +93,17 @@ html
 
 
   script(src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js')
+  
   script.
+    
     var ballInProgress=["WIDE","NOBALL"]
     var validBalls=["0","1","2","3","4","5","6"]
     var lastSelected="0.0"
+    var nextPointer="1.1"
     $(document).ready( function () {
 
-      loadBall("1.1")
+      calculateScore()
+      loadBall(nextPointer)
 
       $( "button" ).click(function() {
 
@@ -149,42 +153,53 @@ html
       return scoreObj
     }
 
-    function calculateScore(){
-      var totalScore=0
-      var wickets=0
-      $('[id^="over_"]').each(function(index){
-        var over = $(this).text()
-        var overTotal=0
-        var inCompleteOver=false
-        for(var i=1; i<=6; i++){
-          var bScore = $("#ball_"+over+"\\."+i).text()
-          if(bScore==" "){
-            bScore=0
-            inCompleteOver=true
+     function calculateScore(){
+        var totalScore=0
+        var wickets=0
+        var oversComplete="0.0"
+        nextPointer=""
+        $('[id^="over_"]').each(function(index){
+          var over = $(this).text()
+          var overTotal=0
+          var inCompleteOver=false
+          for(var i=1; i<=6; i++){
+            var bScore = $("#ball_"+over+"\\."+i).text()
+            if(bScore==" "){
+              bScore=0
+              inCompleteOver=true
+              if(nextPointer=="")
+                nextPointer=over+"."+i
+            }else{
+              if(i>=6){
+                oversComplete=over
+              }else{
+                oversComplete=parseInt(over)-1+"."+i
+              }
+              
+              bScore=parseInt(bScore)
+            }
+            overTotal = overTotal+bScore
+            var wicket = $("#wicket_ball_"+over+"\\."+i).text()
+            $("#ball_"+over+"\\."+i).css("color",'')
+            if(wicket=="true"){
+              wickets=wickets+1
+              $("#ball_"+over+"\\."+i).css("color","red")
+            }
+          }
+          
+          totalScore=totalScore+overTotal
+          if(inCompleteOver){
+            $("#overTotal_"+over).text("")
+            $("#eooScore_"+over).text("")
           }else{
-            bScore=parseInt(bScore)
+            $("#overTotal_"+over).text(overTotal)
+            $("#eooScore_"+over).text(totalScore + "/" + wickets)
           }
-          overTotal = overTotal+bScore
-          var wicket = $("#wicket_ball_"+over+"\\."+i).text()
-          $("#ball_"+over+"\\."+i).css("color",'')
-          if(wicket=="true"){
-            wickets=wickets+1
-            $("#ball_"+over+"\\."+i).css("color","red")
-          }
-        }
-        
-        totalScore=totalScore+overTotal
-        if(inCompleteOver){
-          $("#overTotal_"+over).text("")
-          $("#eooScore_"+over).text("")
-        }else{
-          $("#overTotal_"+over).text(overTotal)
-          $("#eooScore_"+over).text(totalScore + "/" + wickets)
-        }
-        
-      })
-      $("#score").text(totalScore + "/" + wickets)
-    }
+          
+        })
+        var scoreText = totalScore + " / " + wickets + " ( " + oversComplete + " )"
+        $("#score").text(scoreText)
+      }
 
 
     function loadBall(ballId){

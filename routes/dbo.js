@@ -100,8 +100,10 @@ module.exports = {
           })
           doc2.totalScore=totalScore
           doc2.wickets=wickets
-          doc2.save()
-          _callback(true)
+          doc2.save(function(err, doc3){
+            _callback(true)
+          })
+          
         });
       }else{
         console.log(err)
