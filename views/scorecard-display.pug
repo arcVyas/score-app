@@ -1,0 +1,108 @@
+html
+  head
+    title Scorecard - #{title}
+    link(rel="icon" href="/icon.png")
+    link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css')
+    link(rel="stylesheet" type="text/css" href="https://bootswatch.com/4-alpha/darkly/bootstrap.min.css")
+  body
+    .container(style="padding-left:20px;padding-right:10px")
+      .row.col-sm-12(style="padding-top:20px;padding-bottom:20px;")
+        h3 Scorecard for Match -  #{title} 
+        span(id="matchId" style="visibility:hidden") #{title}
+
+      .row(style="padding-top:20px;padding-bottom:20px")
+        .col-sm-12(align="center")
+          h1
+            span(id="score") #{data.totalScore} / #{data.wickets}
+
+      .row(style="padding-top:40px;")
+
+        table.table
+          thead
+            tr
+              th Overs
+              th x.1
+              th x.2
+              th x.3
+              th x.4
+              th x.5
+              th x.6
+              th Total
+              th End Of Over
+          tbody
+            - var eooScore=0
+            each ballsInOver,over in data.overs
+              tr
+                th(scope='row') 
+                  span(id="over_"+over) #{over}
+                - var overTotal=0
+                each ball in ballsInOver
+                  - var ballScore = ball.score;
+                  - var ballScoreTxt
+                  - if(ballScore==undefined){
+                      - ballScoreTxt=" "
+                      - ballScore=0
+                  -}else{
+                      - ballScoreTxt=ballScore
+                  -}
+                  - overTotal=overTotal+ballScore
+                  td 
+                    a(href="javascript:loadBall("+ball.ball+")")
+                      span(id="ball_"+ball.ball style="border-color:yellow;padding-top: 5px;padding-bottom: 5px;padding-left: 5px;padding-right: 5px;") #{ballScoreTxt}
+                      span(id="wicket_ball_"+ball.ball style="visibility:hidden") #{ball.wicket}
+                td 
+                  span(id="overTotal_"+over)
+                td 
+                  span(id="eooScore_"+over)
+
+      .row.col-sm-12(id="messages")
+
+
+  script(src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js')
+  script.
+    var ballInProgress=["WIDE","NOBALL"]
+      var validBalls=["0","1","2","3","4","5","6"]
+      var lastSelected="0.0"
+      $(document).ready( function () {
+
+        calculateScore()
+
+      });
+
+      function calculateScore(){
+        var totalScore=0
+        var wickets=0
+        $('[id^="over_"]').each(function(index){
+          var over = $(this).text()
+          var overTotal=0
+          var inCompleteOver=false
+          for(var i=1; i<=6; i++){
+            var bScore = $("#ball_"+over+"\\."+i).text()
+            if(bScore==" "){
+              bScore=0
+              inCompleteOver=true
+            }else{
+              bScore=parseInt(bScore)
+            }
+            overTotal = overTotal+bScore
+            var wicket = $("#wicket_ball_"+over+"\\."+i).text()
+            $("#ball_"+over+"\\."+i).css("color",'')
+            if(wicket=="true"){
+              wickets=wickets+1
+              $("#ball_"+over+"\\."+i).css("color","red")
+            }
+          }
+          
+          totalScore=totalScore+overTotal
+          if(inCompleteOver){
+            $("#overTotal_"+over).text("")
+            $("#eooScore_"+over).text("")
+          }else{
+            $("#overTotal_"+over).text(overTotal)
+            $("#eooScore_"+over).text(totalScore + "/" + wickets)
+          }
+          
+        })
+        $("#score").text(totalScore + "/" + wickets)
+      }
+

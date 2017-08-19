@@ -1,0 +1,28 @@
+{
+  "name": "score-app",
+  "version": "1.0.0",
+  "description": "Cricket scoring app",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arcVyas/score-app.git"
+  },
+  "author": "vyas",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arcVyas/score-app/issues"
+  },
+  "homepage": "https://github.com/arcVyas/score-app#readme",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "express": "^4.15.4",
+    "http": "0.0.0",
+    "mocha": "^3.5.0",
+    "mongoose": "^4.11.6",
+    "path": "^0.12.7",
+    "pug": "^2.0.0-rc.3"
+  }
+}
