@@ -28,7 +28,7 @@ html
             span(id="score") #{data.totalScore} / #{data.wickets}
 
       .row
-        .col-sm-8(style="padding-right:20px;")
+        .col-sm-12(style="padding-right:20px;")
           .row(style="padding-top:15px; padding-bottom:10px;")
             .col-sm-3
               button.btn.btn-primary.btn-lg.btn-block(id='0') 0
@@ -53,7 +53,8 @@ html
               button.btn.btn-warning.btn-lg.btn-block(id='NOBALL') NO BALL
             .col-sm-4
               button.btn.btn-danger.btn-lg.btn-block(id='OUT') OUT   
-        .col-lg-4(style="border-style:solid;border-color:white; visibility:hidden")
+        //-
+          .col-lg-4(style="border-style:solid;border-color:white; visibility:hidden")
           .row(style="padding-top:15px; padding-bottom:10px;")
             .col-sm-6
               span * Striker
