@@ -115,15 +115,6 @@ html
 
       .row.col-sm-12(id="messages")
 
-    #pleaseWaitDialog.modal.fade(tabindex='-1', role='dialog', aria-labelledby='pleaseWaitDialog', aria-hidden='true')
-      .modal-dialog(role='document')
-        .modal-content
-          .modal-header
-            h5.modal-title Writing score.. Please wait
-          .modal-body
-            img(src='/images/Ball.svg', style='display: block; margin-left: auto; margin-right: auto;')
-
-
   script(src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js')
   script(src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.5/umd/popper.js')
   script(src='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js')
@@ -273,8 +264,6 @@ html
 
       console.log(matchId+";"+ballId+";"+score+";"+scoreLog);
 
-      //$('#ajaxBusy').show();
-      //$('#pleaseWaitDialog').modal({backdrop: 'static', keyboard: false});
       $('button').prop('disabled', true);
       $.post("/matches/"+matchId+"/scorecard/balls/"+ballId,
       {
@@ -294,11 +283,6 @@ html
           calculateScore();
           next(scoreButtonPressed)
           $('button').prop('disabled', false);
-          /*$("#pleaseWaitDialog").removeClass("in");
-          $(".modal-backdrop").remove();
-          $('body').removeClass('modal-open');
-          $("#pleaseWaitDialog").hide();*/
-
       });
       
     }
