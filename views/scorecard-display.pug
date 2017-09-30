@@ -1,11 +1,11 @@
 html
   head
     title Scorecard - #{title}
-    link(rel="icon" href="/icon.png")
+    link(rel="icon" href="/images/site-icon.png")
     link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css')
-    link(rel="stylesheet" type="text/css" href="https://bootswatch.com/4-alpha/darkly/bootstrap.min.css")
+    link(rel="stylesheet" type="text/css" href="https://bootswatch.com/4-alpha/minty/bootstrap.min.css")
   body
-    .container(style="padding-left:20px;padding-right:10px")
+    .container(style="padding-left:25px;padding-right:25px;margin-left:25px;margin-right:25px;width:auto")
       .row.col-sm-12(style="padding-top:20px;padding-bottom:20px;")
         h3 Scorecard for Match -  #{title} 
         span(id="matchId" style="visibility:hidden") #{title}
@@ -19,112 +19,85 @@ html
             span(id="score_desc") 
 
       .row(style="padding-top:40px;")
-
-        table.table
-          thead
-            tr
-              th Overs
-              th x.1
-              th x.2
-              th x.3
-              th x.4
-              th x.5
-              th x.6
-              th Total
-              th End Of Over
-          tbody
-            - var eooScore=0
-            each ballsInOver,over in data.overs
-              tr
-                th(scope='row') 
-                  span(id="over_"+over) #{over}
-                - var overTotal=0
-                each ball in ballsInOver
-                  - var ballScore = ball.score;
-                  - var ballScoreTxt
-                  - if(ballScore==undefined){
-                      - ballScoreTxt=" "
-                      - ballScore=0
-                  -}else{
-                      - ballScoreTxt=ballScore
-                  -}
-                  - overTotal=overTotal+ballScore
-                  td 
-                    a(href="javascript:loadBall("+ball.ball+")")
-                      span(id="ball_"+ball.ball style="border-color:yellow;padding-top: 5px;padding-bottom: 5px;padding-left: 5px;padding-right: 5px;") #{ballScoreTxt}
-                      span(id="wicket_ball_"+ball.ball style="visibility:hidden") #{ball.wicket}
-                td 
-                  span(id="overTotal_"+over)
-                td 
-                  span(id="eooScore_"+over)
+        .col-sm-12
+          canvas#myChart(width='100px', height='300px')
+      .row(style="padding-top:20px;")
+        .col-sm-12
+          canvas#myChartWicket(width='100px', height='300px')
 
       .row.col-sm-12(id="messages")
 
 
   script(src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js')
   script(src='/socket.io/socket.io.js')
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.min.js')
+  script(src='/js/score-charts.js')
   script.
+
     var socket = io();
     $(function () {
       var socket = io();
       socket.on('update score', function(msg){
         var scoreText = msg.totalScore + " / " + msg.wickets + " ( " + msg.oversComplete + " )"
+        console.log("msg received-"+scoreText)
         $("#score").text(scoreText)
-        $("#score_desc").text("\"Score Updated..Refresh page to see updated details section (Beta glitch)\"")
+        $.get('/matches/'+$('#matchId').text()+"/scorecard/json",function( data ) {
+            refreshCharts(data)
+        });
       });
     });
 
     var ballInProgress=["WIDE","NOBALL"]
-      var validBalls=["0","1","2","3","4","5","6"]
-      var lastSelected="0.0"
-      $(document).ready( function () {
+    var validBalls=["0","1","2","3","4","5","6"]
+    var lastSelected="0.0"
+    $(document).ready( function () {
+        $.get('/matches/'+$('#matchId').text()+"/scorecard/json",function( data ) {
+            loadCharts(data)
+        });
+    });
 
-        calculateScore()
-
-      });
-
-      function calculateScore(){
-        var totalScore=0
-        var wickets=0
-        var oversComplete="0.0"
-        $('[id^="over_"]').each(function(index){
-          var over = $(this).text()
-          var overTotal=0
-          var inCompleteOver=false
-          for(var i=1; i<=6; i++){
-            var bScore = $("#ball_"+over+"\\."+i).text()
-            if(bScore==" "){
-              bScore=0
-              inCompleteOver=true
-            }else{
-              if(i>=6){
-                oversComplete=over
-              }else{
-                oversComplete=parseInt(over)-1+"."+i
-              }
-              
-              bScore=parseInt(bScore)
-            }
-            overTotal = overTotal+bScore
-            var wicket = $("#wicket_ball_"+over+"\\."+i).text()
-            $("#ball_"+over+"\\."+i).css("color",'')
-            if(wicket=="true"){
-              wickets=wickets+1
-              $("#ball_"+over+"\\."+i).css("color","red")
-            }
-          }
-          
-          totalScore=totalScore+overTotal
-          if(inCompleteOver){
-            $("#overTotal_"+over).text("")
-            $("#eooScore_"+over).text("")
+    function calculateScore(){
+      var totalScore=0
+      var wickets=0
+      var oversComplete="0.0"
+      $('[id^="over_"]').each(function(index){
+        var over = $(this).text()
+        var overTotal=0
+        var inCompleteOver=false
+        for(var i=1; i<=6; i++){
+          var bScore = $("#ball_"+over+"\\."+i).text()
+          if(bScore==" "){
+            bScore=0
+            inCompleteOver=true
           }else{
-            $("#overTotal_"+over).text(overTotal)
-            $("#eooScore_"+over).text(totalScore + "/" + wickets)
+            if(i>=6){
+              oversComplete=parseInt(over)+1
+            }else{
+              oversComplete=over+"."+i
+            }
+            
+            bScore=parseInt(bScore)
           }
-          
-        })
-        var scoreText = totalScore + " / " + wickets + " ( " + oversComplete + " )"
-        $("#score").text(scoreText)
-      }
+          overTotal = overTotal+bScore
+          var wicket = $("#wicket_ball_"+over+"\\."+i).text()
+          $("#ball_"+over+"\\."+i).css("color",'')
+          if(wicket=="true"){
+            wickets=wickets+1
+            $("#ball_"+over+"\\."+i).css("color","red")
+          }
+        }
+        
+        totalScore=totalScore+overTotal
+        if(inCompleteOver){
+          $("#overTotal_"+over).text("")
+          $("#eooScore_"+over).text("")
+        }else{
+          $("#overTotal_"+over).text(overTotal)
+          $("#eooScore_"+over).text(totalScore + "/" + wickets + " ( " + oversComplete + ".0 )")
+        }
+        
+      })
+      var scoreText = totalScore + " / " + wickets + " ( " + oversComplete + " )"
+      $("#score").text(scoreText)
+    }
 

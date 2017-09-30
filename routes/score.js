@@ -66,8 +66,16 @@ module.exports = function(router, io){
   function splitToOvers(scoreCard){
     var response={}
     response["matchId"]= scoreCard.matchId
-    response["totalScore"]=scoreCard.totalScore
-    response["wickets"]=scoreCard.wickets
+    if(!scoreCard.totalScore){
+      response["totalScore"]=0
+    }else{
+      response["totalScore"]=scoreCard.totalScore
+    }
+    if(!scoreCard.wickets){
+      response["wickets"]=0
+    }else{
+      response["wickets"]=scoreCard.wickets
+    }
     var oversComplete="0.0"
     var overByOver={}
     scoreCard.ballByBall.forEach(function(ballObj){
@@ -80,9 +88,9 @@ module.exports = function(router, io){
       }
       if(ballObj.score>=0){
         if(ballObj.ball.split(".")[1]>=6)
-          oversComplete=ballObj.ball.split(".")[0]
+          oversComplete=parseInt(ballObj.ball.split(".")[0])+1
         else
-          oversComplete=parseInt(ballObj.ball.split(".")[0])-1+"."+ballObj.ball.split(".")[1]
+          oversComplete=parseInt(ballObj.ball.split(".")[0])+"."+ballObj.ball.split(".")[1]
       }
       ballsInOver.push(ballObj)
       overByOver[over]=ballsInOver
