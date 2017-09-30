@@ -3,7 +3,7 @@ html
     title Scorecard - #{title}
     link(rel="icon" href="/icon.png")
     link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css')
-    link(rel="stylesheet" type="text/css" href="https://bootswatch.com/4-alpha/darkly/bootstrap.min.css")
+    link(rel="stylesheet" type="text/css" href="https://bootswatch.com/4-alpha/minty/bootstrap.min.css")
   body
     .container(style="padding-left:25px;padding-right:25px;margin-left:25px;margin-right:25px;width:auto")
       .row.col-sm-12(style="padding-top:20px;padding-bottom:20px;")
@@ -105,7 +105,7 @@ html
                   -}
                   - overTotal=overTotal+ballScore
                   td 
-                    a(id="ball_a_"+ball.ball href="javascript:loadBall("+ball.ball+")" class="btn btn-primary" style="width: 56px;border-color:yellow; border-style:none;")
+                    a(id="ball_a_"+ball.ball href="javascript:loadBall("+ball.ball+")" class="btn btn-primary" style="width: 56px;border-color:brown; border-style:none;")
                       span(id="ball_"+ball.ball style="border-color:yellow;padding-top: 5px;padding-bottom: 5px;padding-left: 5px;padding-right: 5px;") #{ballScoreTxt}
                       span(id="wicket_ball_"+ball.ball style="visibility:hidden") #{ball.wicket}
                 td 
@@ -115,8 +115,18 @@ html
 
       .row.col-sm-12(id="messages")
 
+    #pleaseWaitDialog.modal.fade(tabindex='-1', role='dialog', aria-labelledby='pleaseWaitDialog', aria-hidden='true')
+      .modal-dialog(role='document')
+        .modal-content
+          .modal-header
+            h5.modal-title Writing score.. Please wait
+          .modal-body
+            img(src='/images/Ball.svg', style='display: block; margin-left: auto; margin-right: auto;')
+
 
   script(src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js')
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.5/umd/popper.js')
+  script(src='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js')
   
   script.
     
@@ -124,6 +134,7 @@ html
     var validBalls=["0","1","2","3","4","5","6"]
     var lastSelected="0.0"
     var nextPointer="1.1"
+    var wickets=0
     $(document).ready( function () {
 
       calculateScore()
@@ -153,6 +164,12 @@ html
       });
     });
 
+    /*$(document).ajaxStart(function(){ 
+      $('#ajaxBusy').show(); 
+    }).ajaxStop(function(){ 
+      $('#ajaxBusy').hide();
+    });*/
+
     function getScoreObj(scoreLog){
       var entries = scoreLog.split("+")
       var scoreObj={}
@@ -179,7 +196,7 @@ html
 
      function calculateScore(){
         var totalScore=0
-        var wickets=0
+        wickets=0
         var oversComplete="0.0"
         nextPointer=""
         $('[id^="over_"]').each(function(index){
@@ -195,9 +212,9 @@ html
                 nextPointer=over+"."+i
             }else{
               if(i>=6){
-                oversComplete=over
+                oversComplete=parseInt(over)+1
               }else{
-                oversComplete=parseInt(over)-1+"."+i
+                oversComplete=over+"."+i
               }
               
               bScore=parseInt(bScore)
@@ -208,6 +225,8 @@ html
             if(wicket=="true"){
               wickets=wickets+1
               $("#ball_"+over+"\\."+i).css("color","red")
+            }else if(wickets >=10){
+              $("#ball_a_"+over+"\\."+i).hide()
             }
           }
           
@@ -217,7 +236,7 @@ html
             $("#eooScore_"+over).text("")
           }else{
             $("#overTotal_"+over).text(overTotal)
-            $("#eooScore_"+over).text(totalScore + "/" + wickets)
+            $("#eooScore_"+over).text(totalScore + "/" + wickets + " ( " + oversComplete + ".0 )")
           }
           
         })
@@ -252,8 +271,11 @@ html
       var scoreLog =scoreObj["scoreLog"]
       var wicket =scoreObj["wicket"]
 
-      console.log(matchId+";"+ballId+";"+score+";"+scoreLog)
+      console.log(matchId+";"+ballId+";"+score+";"+scoreLog);
 
+      //$('#ajaxBusy').show();
+      //$('#pleaseWaitDialog').modal({backdrop: 'static', keyboard: false});
+      $('button').prop('disabled', true);
       $.post("/matches/"+matchId+"/scorecard/balls/"+ballId,
       {
           score: score,
@@ -261,6 +283,7 @@ html
           wicket: wicket
       },
       function(data, status){
+          console.log('hiding..')
           console.log("Data: " + data + "\nStatus: " + status);
           $("#ball_"+ballId.replace(".","\\.")).text(score);
           if(wicket){
@@ -270,28 +293,33 @@ html
           }
           calculateScore();
           next(scoreButtonPressed)
+          $('button').prop('disabled', false);
+          /*$("#pleaseWaitDialog").removeClass("in");
+          $(".modal-backdrop").remove();
+          $('body').removeClass('modal-open');
+          $("#pleaseWaitDialog").hide();*/
+
       });
-      function next(scoreButtonPressed){
-        var currentBall = $("#currentBall").text()
-        if(!ballInProgress.includes(scoreButtonPressed)){
-          $("#ball_"+currentBall.replace(".","\\.")).css("border-style","none")
-          var nextBall = getNextBall(currentBall)
-          loadBall(nextBall)
-        }else{
-
-        }
-      }
-      function getNextBall(currentBall){
-        var over = currentBall.split(".")[0]
-        var ball = currentBall.split(".")[1]
-        if(ball>=6){
-          over = parseInt(over) + 1
-          ball = 1
-        }else{
-          ball= parseInt(ball)+1
-        }
-        return(over+"."+ball);
-      }
-
       
+    }
+    function next(scoreButtonPressed){
+      var currentBall = $("#currentBall").text()
+      if(!ballInProgress.includes(scoreButtonPressed)){
+        $("#ball_"+currentBall.replace(".","\\.")).css("border-style","none")
+        var nextBall = getNextBall(currentBall)
+        loadBall(nextBall)
+      }else{
+
+      }
+    }
+    function getNextBall(currentBall){
+      var over = currentBall.split(".")[0]
+      var ball = currentBall.split(".")[1]
+      if(ball>=6){
+        over = parseInt(over) + 1
+        ball = 1
+      }else{
+        ball= parseInt(ball)+1
+      }
+      return(over+"."+ball);
     }

@@ -29,7 +29,7 @@ module.exports = {
     Score.findOne({ matchId: matchId }, function (err, doc){
       if (!doc) {
         var ballByBall=[]
-        for(var i=1;i<=20;i++){
+        for(var i=0;i<20;i++){
           for(var j=1;j<=6;j++){
             var ball = {}
             ball["ball"]=i+"."+j
