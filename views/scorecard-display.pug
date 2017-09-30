@@ -39,11 +39,17 @@ html
       var socket = io();
       socket.on('update score', function(msg){
         var scoreText = msg.totalScore + " / " + msg.wickets + " ( " + msg.oversComplete + " )"
-        console.log("msg received-"+scoreText)
-        $("#score").text(scoreText)
-        $.get('/matches/'+$('#matchId').text()+"/scorecard/json",function( data ) {
-            refreshCharts(data)
-        });
+        //console.log("msg received-"+scoreText)
+        //console.log("matchId:"+msg.matchId)
+        //console.log("current MatchId"+ $("#matchId").text())
+        if(msg.matchId == $("#matchId").text()){
+          $("#score").text(scoreText)
+          $.get('/matches/'+$('#matchId').text()+"/scorecard/json",function( data ) {
+              refreshCharts(data)
+          });
+        }else{
+          //console.log("matchId is not same.."+msg.matchId + "<>" + $("#matchId").text())
+        }
       });
     });
 

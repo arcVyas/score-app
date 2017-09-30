@@ -47,17 +47,17 @@ module.exports = function(router, io){
     }else if(wicket=="true"){
       wicket=true
     }
-    console.log("POST score: "+ ballId +"-"+ score +"-"+ scoreLog+"-"+wicket)
+    //console.log("POST score: "+ ballId +"-"+ score +"-"+ scoreLog+"-"+wicket)
     db.updateBallScore(req.params.matchId, ballId, score, scoreLog, wicket,function(updatedBall){
       if(!updatedBall){
         res.send(500)
       }else{
         res.send(200)
         db.getScoreCard(req.params.matchId, function(scoreCard){
-          console.log("emiting updates...")
-          console.log(scoreCard.totalScore)
+          //console.log("emiting updates...")
+          //console.log(scoreCard.totalScore)
           io.sockets.emit('update score',splitToOvers(scoreCard));
-          console.log("emited...")
+          //console.log("emited...")
         });
       }
     })

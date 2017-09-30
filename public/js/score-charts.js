@@ -18,7 +18,7 @@ function loadCharts(data){
                 borderWidth: 2,
                 type: 'line',
                 fill: false,
-                yAxisID: 'right'
+                yAxisID: 'left'
             },
             
             {
@@ -26,7 +26,7 @@ function loadCharts(data){
                 data: chartData.score,
                 backgroundColor: '#58bbcf',
                 borderWidth: 1,
-                yAxisID: 'left'
+                yAxisID: 'right'
             }
 
             ]
@@ -180,24 +180,35 @@ function getChartDataByOver(data){
             var bscore=0
             var bwicket=0
             var over = i
-            console.log("over="+ over)
+            //console.log("over="+ over)
             $.each(data.overs[over], function( index, ball ) {
-                bscore=bscore+parseInt(ball.score)
-                console.log("bscore="+ bscore)
+                if(ball.score>0){
+                    bscore=bscore+parseInt(ball.score)
+                    //console.log("bscore="+ bscore)
+                }
                 if(ball.wicket){
                     bwicket =bwicket+1
-                    console.log("bwicket="+ bwicket)
+                    //console.log("bwicket="+ bwicket)
                 }
             }); 
-            totScore=totScore+bscore
-            totScoreArr.push(totScore)
-            runRate = (totScore/(i+1)).toFixed(2)
-            console.log(totScore+"/"+(i+1)+"="+runRate)
-            score.push(bscore)   
-            wickets.push(bwicket)
-            totWickets = totWickets + bwicket
-            totWicketsArr.push(totWickets)
-            runRates.push(runRate)
+            var oversComplete = (data.oversComplete).toString()
+            var checkCondition = i
+            if(oversComplete.indexOf(".") !== -1){
+                oversComplete = oversComplete.split('.')[0]
+                checkCondition=checkCondition-1
+            }
+            oversComplete = parseInt(oversComplete)
+            if(checkCondition<oversComplete){
+                totScore=totScore+bscore
+                totScoreArr.push(totScore)
+                runRate = (totScore/(i+1)).toFixed(2)
+                //console.log(totScore+"/"+(i+1)+"="+runRate)
+                score.push(bscore)   
+                wickets.push(bwicket)
+                totWickets = totWickets + bwicket
+                totWicketsArr.push(totWickets)
+                runRates.push(runRate)
+            }
         }
     }
     chartData["labels"]=labels

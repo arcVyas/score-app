@@ -54,13 +54,13 @@ module.exports = {
        _callback(null)
       }else{
         _callback(doc)
-        console.log("Found...")
+        //console.log("Found...")
       }
     });
   },
 
   getBallScore : function(matchId, ballId, _callback){
-    console.log("Searching for matchId="+matchId+"; and ballId="+ballId)
+    //console.log("Searching for matchId="+matchId+"; and ballId="+ballId)
     Score.findOne({ matchId: matchId, 'ballByBall.ball': ballId}, {'ballByBall.$': 1} , function (err, doc){
       if (!doc) {
         _callback(null)
@@ -71,7 +71,7 @@ module.exports = {
   },
 
   updateBallScore : function(matchId, ballId, score, scoreLog,wicket, _callback){
-    console.log("Updating for matchId="+matchId+"; and ballId="+ballId+ ";score="+score+";scoreLog="+scoreLog+";wicket="+wicket)
+    //console.log("Updating for matchId="+matchId+"; and ballId="+ballId+ ";score="+score+";scoreLog="+scoreLog+";wicket="+wicket)
     var ballScore ={}
     ballScore["ball"]=ballId
     ballScore["score"]=parseInt(score)
