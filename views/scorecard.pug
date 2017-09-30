@@ -5,7 +5,7 @@ html
     link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css')
     link(rel="stylesheet" type="text/css" href="https://bootswatch.com/4-alpha/darkly/bootstrap.min.css")
   body
-    .container(style="padding-left:20px;padding-right:10px")
+    .container(style="padding-left:25px;padding-right:25px;margin-left:25px;margin-right:25px;width:auto")
       .row.col-sm-12(style="padding-top:20px;padding-bottom:20px;")
         h3 Scorecard for Match -  #{title} 
         span(id="matchId" style="visibility:hidden") #{title}
@@ -27,28 +27,51 @@ html
           h1
             span(id="score") #{data.totalScore} / #{data.wickets}
 
-      .row(style="padding-top:25px; padding-bottom:20px;border-style:ridge")
-        .col-sm-1
-          button.btn.btn-primary(id='0') 0
-        .col-sm-1
-          button.btn.btn-primary(id='1') 1
-        .col-sm-1
-          button.btn.btn-primary(id='2') 2
-        .col-sm-1
-          button.btn.btn-primary(id='3') 3
-        .col-sm-1
-          button.btn.btn-primary(id='4') 4
-        .col-sm-1
-          button.btn.btn-primary(id='5') 5
-        .col-sm-1
-          button.btn.btn-primary(id='6') 6
-        .col-sm-2
-          button.btn.btn-primary(id='WIDE') WIDE
-        .col-sm-2
-          button.btn.btn-primary(id='NOBALL') NO BALL
-        .col-sm-1
-          button.btn.btn-primary(id='OUT') OUT   
+      .row
+        .col-sm-8(style="padding-right:20px;")
+          .row(style="padding-top:15px; padding-bottom:10px;")
+            .col-sm-3
+              button.btn.btn-default.btn-lg.btn-block(id='0') 0
+            .col-sm-3
+              button.btn.btn-success.btn-lg.btn-block(id='1') 1
+            .col-sm-3
+              button.btn.btn-success.btn-lg.btn-block(id='2') 2
+            .col-sm-3
+              button.btn.btn-success.btn-lg.btn-block(id='3') 3
+          .row(style="padding-top:15px; padding-bottom:10px;")
+            .col-sm-4
+              button.btn.btn-success.btn-lg.btn-block(id='4') 4
+            .col-sm-4
+              button.btn.btn-success.btn-lg.btn-block(id='5') 5
+            .col-sm-4
+              button.btn.btn-success.btn-lg.btn-block(id='6') 6
 
+          .row(style="padding-top:15px; padding-bottom:10px;")
+            .col-sm-4
+              button.btn.btn-warning.btn-lg.btn-block(id='WIDE') WIDE
+            .col-sm-4
+              button.btn.btn-warning.btn-lg.btn-block(id='NOBALL') NO BALL
+            .col-sm-4
+              button.btn.btn-danger.btn-lg.btn-block(id='OUT') OUT   
+        .col-lg-4(style="border-style:solid;border-color:white")
+          .row(style="padding-top:15px; padding-bottom:10px;")
+            .col-sm-6
+              span * Vyas
+            .col-sm-3
+              span 24(7)
+            .col-sm-3
+              button.btn.btn-primary.btn(id='SSTRIKER') ..
+          .row(style="padding-top:15px; padding-bottom:10px;")
+            .col-sm-6
+              span Puneet
+            .col-sm-3
+              span 5(19)
+            .col-sm-3
+              button.btn.btn-primary.btn(id='SNSTRIKER') ..
+          .row(style="padding-top:15px; padding-bottom:10px;")
+            .col.sm-12
+                button.btn.btn-primary.btn(id='SWAP') SWAP
+                
       .row(style="padding-top:40px;")
 
         table.table
@@ -81,7 +104,7 @@ html
                   -}
                   - overTotal=overTotal+ballScore
                   td 
-                    a(href="javascript:loadBall("+ball.ball+")")
+                    a(id="ball_a_"+ball.ball href="javascript:loadBall("+ball.ball+")" class="btn btn-primary" style="width: 56px;border-color:yellow; border-style:none;")
                       span(id="ball_"+ball.ball style="border-color:yellow;padding-top: 5px;padding-bottom: 5px;padding-left: 5px;padding-right: 5px;") #{ballScoreTxt}
                       span(id="wicket_ball_"+ball.ball style="visibility:hidden") #{ball.wicket}
                 td 
@@ -215,8 +238,8 @@ html
           $("#currentBall").text(data.ball)
           $("#ballTotal").text(data.score)
           $("#ballLog").text(data.scoreLog)
-          $("#ball_"+data.ball.replace(".","\\.")).css("border-style","solid")
-          $("#ball_"+lastSelected.replace(".","\\.")).css("border-style","none")
+          $("#ball_a_"+data.ball.replace(".","\\.")).css("border-style","solid")
+          $("#ball_a_"+lastSelected.replace(".","\\.")).css("border-style","none")
           lastSelected=data.ball
       });
       calculateScore()
