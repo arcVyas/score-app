@@ -14,10 +14,14 @@ module.exports = function(router, io){
     });
   });
 
-  router.get('/matches/:matchId/scorecard/record', function(req, res, next) {
-    db.getScoreCardOrCreate(req.params.matchId, function(scoreCard){
-        res.render('./scorecard', { title: req.params.matchId, data: splitToOvers(scoreCard) });
-    });
+  router.get('/matches/:matchId/scorecard/record/:key', function(req, res, next) {
+    if(req.params.key == process.env.RECORDER_KEY){
+      db.getScoreCardOrCreate(req.params.matchId, function(scoreCard){
+          res.render('./scorecard', { title: req.params.matchId, data: splitToOvers(scoreCard) });
+      });
+    }else{
+      res.send(401)
+    }
   });
 
   router.get('/matches/:matchId/scorecard/json', function(req, res, next) {
@@ -76,7 +80,7 @@ module.exports = function(router, io){
     }else{
       response["wickets"]=scoreCard.wickets
     }
-    var oversComplete="0.0"
+    var oversComplete=0
     var overByOver={}
     scoreCard.ballByBall.forEach(function(ballObj){
       var ball= ballObj.ball
@@ -97,6 +101,16 @@ module.exports = function(router, io){
     })
     response["overs"]=overByOver
     response["oversComplete"]=oversComplete
+    var rrate=0.00
+    var oversCompleteTemp=oversComplete.toString()
+    if(oversCompleteTemp.indexOf(".") !== -1){
+      console.log("vyas"+oversCompleteTemp)
+      oversCompleteTemp= parseInt(oversCompleteTemp.split('.')[0])
+    }
+    if(oversCompleteTemp>0){
+      rrate = (parseInt(scoreCard.totalScore)/parseInt(oversCompleteTemp)).toFixed(1)
+    }
+    response["runRate"]=rrate
     return response
   }
 }

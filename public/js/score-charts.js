@@ -5,7 +5,8 @@ var myChartWicket;
 var chartData;
 function loadCharts(data){
     chartData = getChartDataByOver(data)
-
+    console.log("total- "+chartData.totalScore)
+    console.log("score-"+chartData.score)
     myChart = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -192,17 +193,18 @@ function getChartDataByOver(data){
                 }
             }); 
             var oversComplete = (data.oversComplete).toString()
-            var checkCondition = i
             if(oversComplete.indexOf(".") !== -1){
                 oversComplete = oversComplete.split('.')[0]
-                checkCondition=checkCondition-1
+                oversComplete = parseInt(oversComplete)+1
+            }else{
+                oversComplete = parseInt(oversComplete)
             }
-            oversComplete = parseInt(oversComplete)
-            if(checkCondition<oversComplete){
+            var currentOver = i+1;
+            if(currentOver <= oversComplete){
                 totScore=totScore+bscore
                 totScoreArr.push(totScore)
                 runRate = (totScore/(i+1)).toFixed(2)
-                //console.log(totScore+"/"+(i+1)+"="+runRate)
+                console.log(totScore+"/"+(i+1)+"="+runRate)
                 score.push(bscore)   
                 wickets.push(bwicket)
                 totWickets = totWickets + bwicket
@@ -212,7 +214,13 @@ function getChartDataByOver(data){
         }
     }
     chartData["labels"]=labels
+    if(score.length==1){
+        score.push(0)
+    }
     chartData["score"]=score
+    if(wickets.length==1){
+        wickets.push(0)
+    }
     chartData["wickets"]=wickets
     chartData["runRates"]=runRates
     chartData["totalScore"]=totScoreArr

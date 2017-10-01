@@ -16,7 +16,7 @@ html
             - var scoreText = data.totalScore + " / " + data.wickets + " ( " + data.oversComplete + " )"
             span(id="score") #{scoreText}
         .col-sm-12(align="center")
-            span(id="score_desc") 
+            span(id="score_desc") Current Run rate : #{data.runRate}
 
       .row(style="padding-top:40px;")
         .col-sm-12
@@ -44,6 +44,7 @@ html
         //console.log("current MatchId"+ $("#matchId").text())
         if(msg.matchId == $("#matchId").text()){
           $("#score").text(scoreText)
+          $("#score_desc").text("Current Run rate :" + msg.runRate)
           $.get('/matches/'+$('#matchId').text()+"/scorecard/json",function( data ) {
               refreshCharts(data)
           });
