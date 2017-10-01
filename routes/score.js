@@ -7,7 +7,7 @@ module.exports = function(router, io){
   router.get('/matches/:matchId/scorecard', function(req, res, next) {
     db.getScoreCard(req.params.matchId, function(scoreCard){
         if(scoreCard==null){
-          res.send(404)
+          res.send('Match not found. Matches are typically created on the day of the match!')
         }else{
           res.render('./scorecard-display', { title: req.params.matchId, data: splitToOvers(scoreCard) });
         }
@@ -104,7 +104,7 @@ module.exports = function(router, io){
     var rrate=0.00
     var oversCompleteTemp=oversComplete.toString()
     if(oversCompleteTemp.indexOf(".") !== -1){
-      console.log("vyas"+oversCompleteTemp)
+      //console.log("vyas"+oversCompleteTemp)
       oversCompleteTemp= parseInt(oversCompleteTemp.split('.')[0])
     }
     if(oversCompleteTemp>0){
