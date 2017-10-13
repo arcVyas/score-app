@@ -14,13 +14,14 @@ module.exports = function(router, io){
     });
   });
 
-  router.get('/matches/:matchId/scorecard/record/:key', function(req, res, next) {
-    if(req.params.key == process.env.RECORDER_KEY){
+  router.get('/matches/:matchId/scorecard/record', function(req, res, next) {
+    if(req.query.key == process.env.RECORDER_KEY){
       db.getScoreCardOrCreate(req.params.matchId, function(scoreCard){
           res.render('./scorecard', { title: req.params.matchId, data: splitToOvers(scoreCard) });
       });
     }else{
-      res.send(401)
+      res.status(401)
+      res.send("Invalid Key")
     }
   });
 
