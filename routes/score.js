@@ -21,7 +21,7 @@ module.exports = function(router, io){
       });
     }else{
       res.status(401)
-      res.send("Invalid Key")
+      res.send("UNAUTHORIZED : Oopsie..Blank/Invalid Key. You need the right key to record score !!")
     }
   });
 
