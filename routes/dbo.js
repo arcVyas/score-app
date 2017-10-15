@@ -17,14 +17,44 @@ var scoreSchema = mongoose.Schema({
         ball: String,
         score: Number,
         scoreLog: String,
-        wicket: Boolean
+        wicket: Boolean,
+        striker: String,
+        nstriker: String,
+        bowler: String
       }
     ]
 });
 
+var matchSchema = mongoose.Schema({
+    group: String,
+    date: String,
+    time: String,
+    opponent: String,
+    ground: String,
+    players: [],
+    captain: String,
+    result: String,
+    runsScored: Number,
+    runsAgainst: Number,
+    wicketsTaken: Number,
+    wicketsLost: Number,
+    checkedIn: []
+});
+
 var Score = mongoose.model('Score', scoreSchema);
+var Match = mongoose.model('Match', matchSchema);
 
 module.exports = {
+
+  getPlayingEleven: function(group, matchId, _callback){
+    Match.findOne({ group: group, date: matchId }, function (err, doc){
+      if(doc){
+        _callback(doc.players.slice(0,11))
+      }else{
+        _callback(null)
+      }
+    });
+  },
   getScoreCardOrCreate: function (matchId, _callback){
     Score.findOne({ matchId: matchId }, function (err, doc){
       if (!doc) {
@@ -68,9 +98,40 @@ module.exports = {
         _callback(doc)
       }
     });
+    
   },
 
-  updateBallScore : function(matchId, ballId, score, scoreLog,wicket, _callback){
+  getBatsmanScore : function(matchId, batsman, _callback){
+    //console.log("Searching for matchId="+matchId+"; and ballId="+ballId)
+    /*Score.findOne({ matchId: matchId, 'ballByBall.striker': batsman}, {'ballByBall.$': 1} , function (err, doc){
+      if (!doc) {
+        _callback(null)
+      }else{
+        _callback(doc)
+      }
+    });*/
+    Score.aggregate(
+        { $match: {matchId: matchId}},
+        { $unwind: '$ballByBall'},
+        { $match: {'ballByBall.striker':batsman}},
+        //$match : [{ matchId: matchId, 'ballByBall.ballByBall': batsman}, {'ballByBall.$': 1}],
+    {
+        $group : {
+            _id : null,
+            total : {
+                $sum : "$ballByBall.score"
+            }
+        }
+    },function (err, doc){
+      
+      if (!doc) {
+        _callback(null)
+      }else{
+        _callback(doc)
+      }});
+  },
+
+  updateBallScore : function(matchId, ballId, score, scoreLog,wicket,striker,nstriker, _callback){
     //console.log("Updating for matchId="+matchId+"; and ballId="+ballId+ ";score="+score+";scoreLog="+scoreLog+";wicket="+wicket)
     var ballScore ={}
     ballScore["ball"]=ballId
@@ -80,7 +141,9 @@ module.exports = {
         "$set": {
             "ballByBall.$.score": parseInt(score),
             "ballByBall.$.scoreLog": scoreLog,
-            "ballByBall.$.wicket": wicket
+            "ballByBall.$.wicket": wicket,
+            "ballByBall.$.striker": striker,
+            "ballByBall.$.nstriker": nstriker
         }
     }, function (err, doc){
       if (!err) {

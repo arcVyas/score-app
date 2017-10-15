@@ -1,13 +1,13 @@
 html
   head
-    title Scorecard - #{title}
+    title Match Summary (Live) - #{title}
     link(rel="icon" href="/images/site-icon.png")
     link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css')
     link(rel="stylesheet" type="text/css" href="https://bootswatch.com/4-alpha/minty/bootstrap.min.css")
   body
     .container(style="padding-left:25px;padding-right:25px;margin-left:25px;margin-right:25px;width:auto")
       .row.col-sm-12(style="padding-top:20px;padding-bottom:20px;")
-        h3 Scorecard for Match -  #{title} 
+        h3 Match Summary (Live) -  #{title} 
         span(id="matchId" style="visibility:hidden") #{title}
 
       .row(style="padding-top:20px;padding-bottom:20px")
@@ -17,6 +17,8 @@ html
             span(id="score") #{scoreText}
         .col-sm-12(align="center")
             span(id="score_desc") Current Run rate : #{data.runRate}
+        .col-sm-12(align="right")
+            a(href="/matches/"+title+"/scoreboard") Scoreboard (alpha)
 
       .row(style="padding-top:40px;")
         .col-sm-12

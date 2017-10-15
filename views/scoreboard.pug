@@ -1,0 +1,59 @@
+html
+  head
+    title Scoreboard - #{title}
+    link(rel="icon" href="/images/site-icon.png")
+    link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css')
+    link(rel="stylesheet" type="text/css" href="https://bootswatch.com/4-alpha/minty/bootstrap.min.css")
+  body
+    .container(style="padding-left:25px;padding-right:25px;margin-left:25px;margin-right:25px;width:auto")
+      .row(style="padding-top:20px;padding-bottom:20px;")
+        .col-sm-12
+          h3 Scoreboard for Match -  #{title} 
+          span(id="matchId" style="visibility:hidden") #{title}
+        .col-sm-12
+          span BATSMAN SCORE IS NOT EVEN BETA. DONT GET TOO EXCITED SEEING SCORES (NO GUARANTEE). !!
+        col-sm-12
+          span(style="margin-left:30px;") In this version, extras are added to batsman score. So lot of free runs for batsman
+        .col-sm-12
+          a(href="/matches/"+title+"/scorecard") Back to summary
+      - var cnt=0
+      .row(style="padding-top:20px;padding-bottom:20px")
+        .col-lg-6
+          h3 Batsman
+        .col-lg-6
+          h3 Score
+      each player in data
+        .row
+          .col-lg-6
+            span(id=cnt) #{player}
+          .col-lg-6
+            span(id=cnt+"_score") 0
+        - cnt=cnt+1
+
+
+  script(src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js')
+
+
+  script.
+
+    function getPlayerScore(playerId){
+      var matchId = $("#matchId").text()
+      var player = $("#"+playerId).text()
+      $.get("/matches/"+matchId+"/scorecard/card/"+player,
+        function(data, status){
+          //console.log(data)
+          if(!data || data.length<1){
+            $("#"+player+"_score").text("0")
+          }else{
+            console.log(player + data[0].total)
+            $("#"+playerId+"_score").text(data[0].total)
+          }
+        });
+    }
+
+    $(document).ready( function () {
+      for(var i=0; i<11;i++){
+        getPlayerScore(i)
+      }
+    });
+

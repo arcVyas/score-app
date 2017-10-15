@@ -4,6 +4,38 @@ var db = require('./dbo.js')
 
 module.exports = function(router, io){
 
+  router.get('/matches/:matchId/playing11', function(req, res, next) {
+    db.getPlayingEleven("-1001098451131",req.params.matchId, function(playingEleven){
+        if(playingEleven==null){
+          res.send('cant find playing 11')
+        }else{
+          res.send(playingEleven);
+        }
+    });
+  });
+
+  router.get('/matches/:matchId/scoreboard', function(req, res, next) {
+    db.getPlayingEleven("-1001098451131",req.params.matchId, function(playingEleven){
+        if(playingEleven==null){
+          res.render('./scoreboard', { title: req.params.matchId, data: []});
+        }else{
+          res.render('./scoreboard', { title: req.params.matchId, data: playingEleven });
+        }
+    });
+  });
+  
+   router.get('/matches/:matchId/scorecard/card/:batsman', function(req, res, next) {
+    db.getBatsmanScore(req.params.matchId,req.params.batsman, function(score){
+        if(score==null){
+          res.send('cant find batsman')
+        }else{
+          res.send(score);
+        }
+    });
+  });
+
+
+
   router.get('/matches/:matchId/scorecard', function(req, res, next) {
     db.getScoreCard(req.params.matchId, function(scoreCard){
         if(scoreCard==null){
@@ -47,13 +79,16 @@ module.exports = function(router, io){
     var score = req.body.score;
     var scoreLog = req.body.scoreLog;
     var wicket = req.body.wicket;
+    var striker = req.body.striker;
+    var nstriker = req.body.nstriker;
+
     if(!wicket || wicket=="false"){
       wicket=false
     }else if(wicket=="true"){
       wicket=true
     }
     //console.log("POST score: "+ ballId +"-"+ score +"-"+ scoreLog+"-"+wicket)
-    db.updateBallScore(req.params.matchId, ballId, score, scoreLog, wicket,function(updatedBall){
+    db.updateBallScore(req.params.matchId, ballId, score, scoreLog, wicket, striker, nstriker, function(updatedBall){
       if(!updatedBall){
         res.send(500)
       }else{

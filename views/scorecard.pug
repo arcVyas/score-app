@@ -31,47 +31,55 @@ html
         .col-sm-12(style="padding-right:20px;")
           .row(style="padding-top:15px; padding-bottom:10px;")
             .col-sm-3
-              button.btn.btn-primary.btn-lg.btn-block(id='0') 0
+              button.btn.btn-primary.btn-lg.btn-block(id='score_0') 0
             .col-sm-3
-              button.btn.btn-success.btn-lg.btn-block(id='1') 1
+              button.btn.btn-success.btn-lg.btn-block(id='score_1') 1
             .col-sm-3
-              button.btn.btn-success.btn-lg.btn-block(id='2') 2
+              button.btn.btn-success.btn-lg.btn-block(id='score_2') 2
             .col-sm-3
-              button.btn.btn-success.btn-lg.btn-block(id='3') 3
+              button.btn.btn-success.btn-lg.btn-block(id='score_3') 3
           .row(style="padding-top:15px; padding-bottom:10px;")
             .col-sm-4
-              button.btn.btn-success.btn-lg.btn-block(id='4') 4
+              button.btn.btn-success.btn-lg.btn-block(id='score_4') 4
             .col-sm-4
-              button.btn.btn-success.btn-lg.btn-block(id='5') 5
+              button.btn.btn-success.btn-lg.btn-block(id='score_5') 5
             .col-sm-4
-              button.btn.btn-success.btn-lg.btn-block(id='6') 6
+              button.btn.btn-success.btn-lg.btn-block(id='score_6') 6
 
           .row(style="padding-top:15px; padding-bottom:10px;")
             .col-sm-4
-              button.btn.btn-warning.btn-lg.btn-block(id='WIDE') WIDE
+              button.btn.btn-warning.btn-lg.btn-block(id='score_WIDE') WIDE
             .col-sm-4
-              button.btn.btn-warning.btn-lg.btn-block(id='NOBALL') NO BALL
+              button.btn.btn-warning.btn-lg.btn-block(id='score_NOBALL') NOBALL
             .col-sm-4
-              button.btn.btn-danger.btn-lg.btn-block(id='OUT') OUT   
-        //-
+              button.btn.btn-danger.btn-lg.btn-block(id='score_OUT') OUT   
           .col-lg-4(style="border-style:solid;border-color:white; visibility:hidden")
           .row(style="padding-top:15px; padding-bottom:10px;")
             .col-sm-6
-              span * Striker
+              span *
+              span#striker 
             .col-sm-3
-              span 0(0)
+              span#strikerScore 0(0)
             .col-sm-3
-              button.btn.btn-primary.btn(id='SSTRIKER') ..
+              .dropdown
+                button#dropdownMenuButton.btn.btn-secondary.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+                  | Pick Player
+                .dropdown-menu#strikers(aria-labelledby='dropdownMenuButton')
+
           .row(style="padding-top:15px; padding-bottom:10px;")
             .col-sm-6
-              span Non-Striker
+              span#nstriker 
             .col-sm-3
-              span 0(0)
+              span#nstrikerScore 0(0)
             .col-sm-3
-              button.btn.btn-primary.btn(id='SNSTRIKER') ..
+              .dropdown
+                button#dropdownMenuButton.btn.btn-secondary.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+                  | Pick Player
+                .dropdown-menu#nstrikers(aria-labelledby='dropdownMenuButton')
+
           .row(style="padding-top:15px; padding-bottom:10px;")
             .col.sm-12
-                button.btn.btn-primary.btn(id='SWAP') SWAP
+                button.btn.btn-primary.btn(id='swapStriker') SWAP
                 
       .row(style="padding-top:40px;")
 
@@ -126,14 +134,67 @@ html
     var lastSelected="0.0"
     var nextPointer="1.1"
     var wickets=0
+    function changePlayer(where, player){
+        //console.log("changing " + where + ".." + player)
+        if(where == "striker"){
+          $("#striker").text(player)
+        }else if(where == "nstriker"){
+          $("#nstriker").text(player)
+        }
+        loadChangePlayerList()
+        getStrikerScore()
+        getNStrikerScore()
+    }
+    function getStrikerScore(){
+        var matchId = $("#matchId").text()
+        $.get("/matches/"+matchId+"/scorecard/card/"+$("#striker").text(),
+          function(data, status){
+            if(!data || data.length<1){
+              $("#strikerScore").text("0")
+            }else{
+              $("#strikerScore").text(data[0].total)
+            }
+          });
+      }
+
+      function getNStrikerScore(){
+        var matchId = $("#matchId").text()
+        $.get("/matches/"+matchId+"/scorecard/card/"+$("#nstriker").text(),
+          function(data, status){
+            if(!data || data.length<1){
+              $("#nstrikerScore").text("0")
+            }else{
+              $("#nstrikerScore").text(data[0].total)
+            }
+          });
+      }
     $(document).ready( function () {
+
+      loadChangePlayerList();
 
       calculateScore()
       loadBall(nextPointer)
 
-      $( "button" ).click(function() {
+      
+      
 
-        var buttonPressed = this.id
+      $("#swapStriker").click(function(){
+        var striker = $("#striker").text()
+        var nstriker = $("#nstriker").text()
+        var strikerScore = $("#strikerScore").text()
+        var nstrikerScore = $("#nstrikerScore").text()
+        //console.log("stricker:"+striker)
+        //console.log("nstricker:"+nstriker)
+        $("#striker").text(nstriker)
+        $("#nstriker").text(striker)
+        $("#strikerScore").text(nstrikerScore)
+        $("#nstrikerScore").text(strikerScore)
+      })
+
+      $( "[id^=score_]" ).click(function() {
+
+        var buttonPressed = $(this).text().trim()
+
         var scoreLog = $("#ballLog").text();
         console.log("Before:"+scoreLog)
 
@@ -185,56 +246,55 @@ html
       return scoreObj
     }
 
-     function calculateScore(){
-        var totalScore=0
-        wickets=0
-        var oversComplete="0.0"
-        nextPointer=""
-        $('[id^="over_"]').each(function(index){
-          var over = $(this).text()
-          var overTotal=0
-          var inCompleteOver=false
-          for(var i=1; i<=6; i++){
-            var bScore = $("#ball_"+over+"\\."+i).text()
-            if(bScore==" "){
-              bScore=0
-              inCompleteOver=true
-              if(nextPointer=="")
-                nextPointer=over+"."+i
-            }else{
-              if(i>=6){
-                oversComplete=parseInt(over)+1
-              }else{
-                oversComplete=over+"."+i
-              }
-              
-              bScore=parseInt(bScore)
-            }
-            overTotal = overTotal+bScore
-            var wicket = $("#wicket_ball_"+over+"\\."+i).text()
-            $("#ball_"+over+"\\."+i).css("color",'')
-            if(wicket=="true"){
-              wickets=wickets+1
-              $("#ball_"+over+"\\."+i).css("color","red")
-            }else if(wickets >=10){
-              $("#ball_a_"+over+"\\."+i).hide()
-            }
-          }
-          
-          totalScore=totalScore+overTotal
-          if(inCompleteOver){
-            $("#overTotal_"+over).text("")
-            $("#eooScore_"+over).text("")
+    function calculateScore(){
+      var totalScore=0
+      wickets=0
+      var oversComplete="0.0"
+      nextPointer=""
+      $('[id^="over_"]').each(function(index){
+        var over = $(this).text()
+        var overTotal=0
+        var inCompleteOver=false
+        for(var i=1; i<=6; i++){
+          var bScore = $("#ball_"+over+"\\."+i).text()
+          if(bScore==" "){
+            bScore=0
+            inCompleteOver=true
+            if(nextPointer=="")
+              nextPointer=over+"."+i
           }else{
-            $("#overTotal_"+over).text(overTotal)
-            $("#eooScore_"+over).text(totalScore + "/" + wickets + " ( " + oversComplete + ".0 )")
+            if(i>=6){
+              oversComplete=parseInt(over)+1
+            }else{
+              oversComplete=over+"."+i
+            }
+            
+            bScore=parseInt(bScore)
           }
-          
-        })
-        var scoreText = totalScore + " / " + wickets + " ( " + oversComplete + " )"
-        $("#score").text(scoreText)
-      }
-
+          overTotal = overTotal+bScore
+          var wicket = $("#wicket_ball_"+over+"\\."+i).text()
+          $("#ball_"+over+"\\."+i).css("color",'')
+          if(wicket=="true"){
+            wickets=wickets+1
+            $("#ball_"+over+"\\."+i).css("color","red")
+          }else if(wickets >=10){
+            $("#ball_a_"+over+"\\."+i).hide()
+          }
+        }
+        
+        totalScore=totalScore+overTotal
+        if(inCompleteOver){
+          $("#overTotal_"+over).text("")
+          $("#eooScore_"+over).text("")
+        }else{
+          $("#overTotal_"+over).text(overTotal)
+          $("#eooScore_"+over).text(totalScore + "/" + wickets + " ( " + oversComplete + ".0 )")
+        }
+        
+      })
+      var scoreText = totalScore + " / " + wickets + " ( " + oversComplete + " )"
+      $("#score").text(scoreText)
+    }
 
     function loadBall(ballId){
       var matchId = $("#matchId").text()
@@ -249,18 +309,57 @@ html
           $("#currentBall").text(data.ball)
           $("#ballTotal").text(data.score)
           $("#ballLog").text(data.scoreLog)
+          $("#striker").text(data.striker)
+          $("#nstriker").text(data.nstriker)
           $("#ball_a_"+data.ball.replace(".","\\.")).css("border-style","solid")
           $("#ball_a_"+lastSelected.replace(".","\\.")).css("border-style","none")
           lastSelected=data.ball
+          loadChangePlayerList()
+          getStrikerScore();
+          getNStrikerScore();
       });
       calculateScore()
     }
+
+    function getPlayerList(){
+      var players = [];
+      $.ajax({
+        url: "/matches/"+$("#matchId").text()+"/playing11",
+        async: false,
+        success: function (result){
+          console.log("RESULT: "+result)
+          players= result
+        }
+      })
+      return players
+    }
+
+    function loadChangePlayerList(){
+      var strikers="";
+      var nstrikers="";
+      var menuList;
+      var playerList=getPlayerList();
+      var striker = $("#striker").text()
+      var nstriker = $("#nstriker").text()
+
+      playerList.forEach(function(item){
+        if(item!=nstriker && item!=striker){
+          strikers=strikers+ '<a class="dropdown-item" href="javascript:changePlayer(\'striker\',\''+item+'\')">'+item+'</a>';
+          nstrikers=nstrikers+ '<a class="dropdown-item" href="javascript:changePlayer(\'nstriker\',\''+item+'\')">'+item+'</a>';
+        }
+      })
+      $("#strikers").html(strikers)
+      $("#nstrikers").html(nstrikers)
+    }
+
     function saveBall(scoreButtonPressed,ballId,scoreObj){
 
       var matchId = $("#matchId").text()
       var score =scoreObj["score"]
       var scoreLog =scoreObj["scoreLog"]
       var wicket =scoreObj["wicket"]
+      var striker = $("#striker").text()
+      var nstriker = $("#nstriker").text()
 
       console.log(matchId+";"+ballId+";"+score+";"+scoreLog);
 
@@ -269,10 +368,11 @@ html
       {
           score: score,
           scoreLog: scoreLog,
-          wicket: wicket
+          wicket: wicket,
+          striker: striker,
+          nstriker: nstriker
       },
       function(data, status){
-          console.log('hiding..')
           console.log("Data: " + data + "\nStatus: " + status);
           $("#ball_"+ballId.replace(".","\\.")).text(score);
           if(wicket){
