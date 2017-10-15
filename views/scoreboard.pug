@@ -18,15 +18,15 @@ html
           a(href="/matches/"+title+"/scorecard") Back to summary
       - var cnt=0
       .row(style="padding-top:20px;padding-bottom:20px")
-        .col-lg-6
+        .col-sm-6
           h3 Batsman
-        .col-lg-6
+        .col-sm-2
           h3 Score
       each player in data
         .row
-          .col-lg-6
+          .col-sm-6
             span(id=cnt) #{player}
-          .col-lg-6
+          .col-sm-2
             span(id=cnt+"_score") 0
         - cnt=cnt+1
 
