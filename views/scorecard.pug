@@ -55,10 +55,10 @@ html
               button.btn.btn-danger.btn-lg.btn-block(id='score_OUT') OUT   
           .col-lg-4(style="border-style:solid;border-color:white; visibility:hidden")
           .row(style="padding-top:15px; padding-bottom:10px;")
-            .col-sm-6
+            .col-sm-6(style="font-weight:bold")
               span *
               span#striker 
-            .col-sm-3
+            .col-sm-3(style="font-weight:bold")
               span#strikerScore 0(0)
             .col-sm-3
               .dropdown
@@ -168,6 +168,18 @@ html
             }
           });
       }
+      function swapBatsmen(){
+        var striker = $("#striker").text()
+        var nstriker = $("#nstriker").text()
+        var strikerScore = $("#strikerScore").text()
+        var nstrikerScore = $("#nstrikerScore").text()
+        //console.log("stricker:"+striker)
+        //console.log("nstricker:"+nstriker)
+        $("#striker").text(nstriker)
+        $("#nstriker").text(striker)
+        $("#strikerScore").text(nstrikerScore)
+        $("#nstrikerScore").text(strikerScore)
+      }
     $(document).ready( function () {
 
       loadChangePlayerList();
@@ -179,17 +191,10 @@ html
       
 
       $("#swapStriker").click(function(){
-        var striker = $("#striker").text()
-        var nstriker = $("#nstriker").text()
-        var strikerScore = $("#strikerScore").text()
-        var nstrikerScore = $("#nstrikerScore").text()
-        //console.log("stricker:"+striker)
-        //console.log("nstricker:"+nstriker)
-        $("#striker").text(nstriker)
-        $("#nstriker").text(striker)
-        $("#strikerScore").text(nstrikerScore)
-        $("#nstrikerScore").text(strikerScore)
+        swapBatsmen()
       })
+
+      
 
       $( "[id^=score_]" ).click(function() {
 
@@ -296,7 +301,7 @@ html
       $("#score").text(scoreText)
     }
 
-    function loadBall(ballId){
+    function loadBall(ballId,skipBatters){
       var matchId = $("#matchId").text()
       $.get("/matches/"+matchId+"/scorecard/balls/"+ballId,
       function(scoreCard, status){
@@ -309,8 +314,10 @@ html
           $("#currentBall").text(data.ball)
           $("#ballTotal").text(data.score)
           $("#ballLog").text(data.scoreLog)
-          $("#striker").text(data.striker)
-          $("#nstriker").text(data.nstriker)
+          if(!skipBatters){
+            $("#striker").text(data.striker)
+            $("#nstriker").text(data.nstriker)
+          }
           $("#ball_a_"+data.ball.replace(".","\\.")).css("border-style","solid")
           $("#ball_a_"+lastSelected.replace(".","\\.")).css("border-style","none")
           lastSelected=data.ball
@@ -386,12 +393,24 @@ html
       });
       
     }
+    function setBatsmenForNextBall(scoreButtonPressed,nextBall){
+
+        if(scoreButtonPressed=="OUT"){
+            $("#striker").text("")
+        }else if(!["WIDE","NOBALL","0","2","4","6"].includes(scoreButtonPressed)){
+          swapBatsmen()
+        }
+        if(nextBall.includes(".1")){
+          swapBatsmen()
+        }
+    }
     function next(scoreButtonPressed){
       var currentBall = $("#currentBall").text()
       if(!ballInProgress.includes(scoreButtonPressed)){
         $("#ball_"+currentBall.replace(".","\\.")).css("border-style","none")
         var nextBall = getNextBall(currentBall)
-        loadBall(nextBall)
+        setBatsmenForNextBall(scoreButtonPressed, nextBall)
+        loadBall(nextBall,true)
       }else{
 
       }
