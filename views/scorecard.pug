@@ -31,6 +31,8 @@ html
         .col-sm-6(align="right")
           h1
             span(id="score") #{data.totalScore} / #{data.wickets}
+        .col-sm-12(align="right")
+          a(href="/matches/"+title+"/scorecard" target="_blank") View Summary Scorecard
 
       .row
         .col-sm-12(style="padding-right:20px;")
@@ -87,7 +89,6 @@ html
                 button.btn.btn-primary.btn(id='swapStriker') SWAP
                 
       .row(style="padding-top:40px;")
-
         table.table
           thead
             tr
@@ -195,7 +196,7 @@ html
       if(b == 1){
         result = (parseInt(over)-1)+"."+6
       }else{
-        result = over+"."+parseInt(i)-1
+        result = over+"."+(parseInt(b)-1)
       }
       return result
     }
@@ -206,7 +207,7 @@ html
       if(b == 6){
         result = (parseInt(over)+1)+"."+1
       }else{
-        result = over+"."+parseInt(i)+1
+        result = over+"."+(parseInt(b)+1)
       }
       return result
     }
