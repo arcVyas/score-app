@@ -3,7 +3,7 @@ html
     title Scoreboard - #{title}
     link(rel="icon" href="/images/site-icon.png")
     link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css')
-    link(rel="stylesheet" type="text/css" href="https://bootswatch.com/4-alpha/minty/bootstrap.min.css")
+    link(rel="stylesheet" type="text/css" href="https://bootswatch.com/4-alpha/lux/bootstrap.min.css")
   body
     .container(style="padding-left:25px;padding-right:25px;margin-left:25px;margin-right:25px;width:auto")
       .row(style="padding-top:20px;padding-bottom:20px;")
@@ -36,24 +36,23 @@ html
 
   script.
 
-    function getPlayerScore(playerId){
-      var matchId = $("#matchId").text()
-      var player = $("#"+playerId).text()
-      $.get("/matches/"+matchId+"/scorecard/card/"+player,
-        function(data, status){
-          //console.log(data)
-          if(!data || data.length<1){
-            $("#"+player+"_score").text("0")
-          }else{
-            console.log(player + data[0].total)
-            $("#"+playerId+"_score").text(data[0].total)
-          }
-        });
+    function getPlayerScore(playerId) {
+        var matchId = $("#matchId").text()
+        var player = $("#" + playerId).text()
+        $.get("/matches/" + matchId + "/scorecard/card/" + player,
+            function(data, status) {
+                //console.log(data)
+                if (!data || data.length < 1) {
+                    $("#" + player + "_score").text("0")
+                } else {
+                    console.log(player + data[0].total)
+                    $("#" + playerId + "_score").text(data[0].total)
+                }
+            });
     }
 
-    $(document).ready( function () {
-      for(var i=0; i<11;i++){
-        getPlayerScore(i)
-      }
+    $(document).ready(function() {
+        for (var i = 0; i < 11; i++) {
+            getPlayerScore(i)
+        }
     });
-

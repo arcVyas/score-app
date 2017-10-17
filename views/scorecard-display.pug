@@ -3,7 +3,7 @@ html
     title Match Summary (Live) - #{title}
     link(rel="icon" href="/images/site-icon.png")
     link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css')
-    link(rel="stylesheet" type="text/css" href="https://bootswatch.com/4-alpha/minty/bootstrap.min.css")
+    link(rel="stylesheet" type="text/css" href="https://bootswatch.com/4-alpha/lux/bootstrap.min.css")
   body
     .container(style="padding-left:25px;padding-right:25px;margin-left:25px;margin-right:25px;width:auto")
       .row.col-sm-12(style="padding-top:20px;padding-bottom:20px;")
@@ -35,78 +35,77 @@ html
   script(src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.min.js')
   script(src='/js/score-charts.js')
   script.
-
     var socket = io();
-    $(function () {
-      var socket = io();
-      socket.on('update score', function(msg){
-        var scoreText = msg.totalScore + " / " + msg.wickets + " ( " + msg.oversComplete + " )"
-        //console.log("msg received-"+scoreText)
-        //console.log("matchId:"+msg.matchId)
-        //console.log("current MatchId"+ $("#matchId").text())
-        if(msg.matchId == $("#matchId").text()){
-          $("#score").text(scoreText)
-          $("#score_desc").text("Current Run rate :" + msg.runRate)
-          $.get('/matches/'+$('#matchId').text()+"/scorecard/json",function( data ) {
-              refreshCharts(data)
-          });
-        }else{
-          //console.log("matchId is not same.."+msg.matchId + "<>" + $("#matchId").text())
-        }
-      });
+    $(function() {
+        var socket = io();
+        socket.on('update score', function(msg) {
+            var scoreText = msg.totalScore + " / " + msg.wickets + " ( " + msg.oversComplete + " )"
+            //console.log("msg received-"+scoreText)
+            //console.log("matchId:"+msg.matchId)
+            //console.log("current MatchId"+ $("#matchId").text())
+            if (msg.matchId == $("#matchId").text()) {
+                $("#score").text(scoreText)
+                $("#score_desc").text("Current Run rate :" + msg.runRate)
+                $.get('/matches/' + $('#matchId').text() + "/scorecard/json", function(data) {
+                    refreshCharts(data)
+                });
+            } else {
+                //console.log("matchId is not same.."+msg.matchId + "<>" + $("#matchId").text())
+            }
+        });
     });
 
-    var ballInProgress=["WIDE","NOBALL"]
-    var validBalls=["0","1","2","3","4","5","6"]
-    var lastSelected="0.0"
-    $(document).ready( function () {
-        $.get('/matches/'+$('#matchId').text()+"/scorecard/json",function( data ) {
+    var ballInProgress = ["WIDE", "NOBALL"]
+    var validBalls = ["0", "1", "2", "3", "4", "5", "6"]
+    var lastSelected = "0.0"
+
+    $(document).ready(function() {
+        $.get('/matches/' + $('#matchId').text() + "/scorecard/json", function(data) {
             loadCharts(data)
         });
     });
 
-    function calculateScore(){
-      var totalScore=0
-      var wickets=0
-      var oversComplete="0.0"
-      $('[id^="over_"]').each(function(index){
-        var over = $(this).text()
-        var overTotal=0
-        var inCompleteOver=false
-        for(var i=1; i<=6; i++){
-          var bScore = $("#ball_"+over+"\\."+i).text()
-          if(bScore==" "){
-            bScore=0
-            inCompleteOver=true
-          }else{
-            if(i>=6){
-              oversComplete=parseInt(over)+1
-            }else{
-              oversComplete=over+"."+i
-            }
-            
-            bScore=parseInt(bScore)
-          }
-          overTotal = overTotal+bScore
-          var wicket = $("#wicket_ball_"+over+"\\."+i).text()
-          $("#ball_"+over+"\\."+i).css("color",'')
-          if(wicket=="true"){
-            wickets=wickets+1
-            $("#ball_"+over+"\\."+i).css("color","red")
-          }
-        }
-        
-        totalScore=totalScore+overTotal
-        if(inCompleteOver){
-          $("#overTotal_"+over).text("")
-          $("#eooScore_"+over).text("")
-        }else{
-          $("#overTotal_"+over).text(overTotal)
-          $("#eooScore_"+over).text(totalScore + "/" + wickets + " ( " + oversComplete + ".0 )")
-        }
-        
-      })
-      var scoreText = totalScore + " / " + wickets + " ( " + oversComplete + " )"
-      $("#score").text(scoreText)
-    }
+    function calculateScore() {
+        var totalScore = 0
+        var wickets = 0
+        var oversComplete = "0.0"
+        $('[id^="over_"]').each(function(index) {
+            var over = $(this).text()
+            var overTotal = 0
+            var inCompleteOver = false
+            for (var i = 1; i <= 6; i++) {
+                var bScore = $("#ball_" + over + "\\." + i).text()
+                if (bScore == " ") {
+                    bScore = 0
+                    inCompleteOver = true
+                } else {
+                    if (i >= 6) {
+                        oversComplete = parseInt(over) + 1
+                    } else {
+                        oversComplete = over + "." + i
+                    }
 
+                    bScore = parseInt(bScore)
+                }
+                overTotal = overTotal + bScore
+                var wicket = $("#wicket_ball_" + over + "\\." + i).text()
+                $("#ball_" + over + "\\." + i).css("color", '')
+                if (wicket == "true") {
+                    wickets = wickets + 1
+                    $("#ball_" + over + "\\." + i).css("color", "red")
+                }
+            }
+
+            totalScore = totalScore + overTotal
+            if (inCompleteOver) {
+                $("#overTotal_" + over).text("")
+                $("#eooScore_" + over).text("")
+            } else {
+                $("#overTotal_" + over).text(overTotal)
+                $("#eooScore_" + over).text(totalScore + "/" + wickets + " ( " + oversComplete + ".0 )")
+            }
+
+        })
+        var scoreText = totalScore + " / " + wickets + " ( " + oversComplete + " )"
+        $("#score").text(scoreText)
+    }
