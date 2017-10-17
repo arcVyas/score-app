@@ -61,9 +61,9 @@ html
             .col-sm-4
               button.btn.btn-danger.btn-lg.btn-block(id='score_OUT',style="font-size: 1.25rem;") OUT   
           .col-lg-4(style="border-style:solid;border-color:white; visibility:hidden")
-          .row(style="padding-top:15px; padding-bottom:10px;")
+          .row(style="padding-top:15px; padding-bottom:5px;")
             .col-sm-6(style="font-weight:bold;font-size: 1.0rem;")
-              span *
+              span(style="color: #187aa3;padding-right:2px") *
               span#striker 
             .col-sm-3(style="font-weight:bold;font-size: 1.0rem;")
               span#strikerScore 0(0)
@@ -73,7 +73,7 @@ html
                   | Pick Player
                 .dropdown-menu#strikers(aria-labelledby='dropdownMenuButton')
 
-          .row(style="padding-top:15px; padding-bottom:10px;")
+          .row(style="padding-top:5px; padding-bottom:10px;")
             .col-sm-6(style="font-size: 1.0rem;")
               span#nstriker 
             .col-sm-3(style="font-size: 1.0rem;")
