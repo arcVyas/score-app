@@ -8,6 +8,48 @@ db.once('open', function() {
   console.log('DB Connected')
 });
 
+var scoreSchema2 = mongoose.Schema({
+  matchId: String,
+  totalScore: Number,
+  wickets: Number,
+  nextBall: String,
+  nextBallStriker: String,
+  nextBallNStriker: String,
+  overs:[
+    {
+      over: String,
+      balls: [
+        {
+          ball: String,
+          score: Number,
+          scoreLog: String,
+          wicket: Boolean,
+          striker: String,
+          nstriker: String,
+          bowler: String
+        }
+      ]
+    }
+  ]
+});
+var scoreBoardSchema = mongoose.Schema({
+  matchId: String,
+  totalScore: Number,
+  wickets: Number,
+  striker: String,
+  nStriker: String,
+  batsmen:[
+    {
+      name: String,
+      score: Number,
+      ballsTaken: Number,
+      fours: Number,
+      six: Number,
+      out: Boolean
+    }
+  ]
+});
+
 var scoreSchema = mongoose.Schema({
     matchId: String,
     totalScore: Number,
